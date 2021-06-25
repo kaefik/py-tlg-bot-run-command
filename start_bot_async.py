@@ -13,7 +13,7 @@ import logging
 # import re
 
 from i_utils import run_cmd
-from sqlitelib.sqliteutils import User, SettingUser, Role, TypeResult, QualityResult
+from sqlitelib.sqliteutils import User, SettingUser, Role, SettingOne, SettingTwo
 
 # ---- Начальные данные ----
 

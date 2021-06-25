@@ -1,7 +1,7 @@
 """
 модуль для работы с sqlite в качестве хранилища настройки бота
 
-БД настроек состоит из следцющих таблиц
+БД настроек состоит из следующих таблиц
     1) таблица пользователей USERS
     2) таблица ролей (прав доступа к боту)
     3) настроек по результату выгрузки для каждого пользователя
@@ -18,17 +18,20 @@ class Role(Enum):
     user = 2
 
 
+# --------- Здесь должны описываться настройки пользователей в виде перечислений
 # типы результата работы
-class TypeResult(Enum):
+class SettingOne(Enum):
     video = 1
     sound = 2
 
 
-class QualityResult(Enum):
+class SettingTwo(Enum):
     low = 1
     medium = 2
     high = 3
 
+
+# --------- END Здесь должны описываться настройки пользователей в виде перечислений
 
 # данные конкретного пользователя
 class User:
@@ -38,11 +41,11 @@ class User:
         self._name = ''
         self._active = False
         self._role = Role.user
-        self._typeresult = TypeResult.sound
-        self._qualityresult = QualityResult.medium
+        self._typeresult = SettingOne.sound
+        self._qualityresult = SettingTwo.medium
 
-    def __init__(self, id=-1, name='', active=False, role=Role.user, typeresult=TypeResult.sound,
-                 qualityresult=QualityResult.medium):
+    def __init__(self, id=-1, name='', active=False, role=Role.user, typeresult=SettingOne.sound,
+                 qualityresult=SettingTwo.medium):
         self._id = id
         self._name = name
         if active == 0:
@@ -61,27 +64,31 @@ class User:
         else:
             self._role = Role.user
 
+        # Здесь проверка на коорректность настроек пользователя SettingOne и SettingTwo
+        # возможно это делать не нужно, так как используются аннотации типов
         # TODO: понять как из строки перевести в тип enum без бесконечных if
-        if typeresult == 'TypeResult.video':
-            self._typeresult = TypeResult.video
-        elif typeresult == 'TypeResult.sound':
-            self._typeresult = TypeResult.sound
-        elif type(typeresult) is TypeResult:
+        if typeresult == 'SettingOne.video':
+            self._typeresult = SettingOne.video
+        elif typeresult == 'SettingOne.sound':
+            self._typeresult = SettingOne.sound
+        elif type(typeresult) is SettingOne:
             self._typeresult = typeresult
         else:
-            self._typeresult = TypeResult.sound
+            self._typeresult = SettingOne.sound
 
         # TODO: понять как из строки перевести в тип enum без бесконечных if
-        if type(qualityresult) is QualityResult:
+        if type(qualityresult) is SettingTwo:
             self._qualityresult = qualityresult
-        elif qualityresult == 'QualityResult.low':
-            self._qualityresult = QualityResult.low
-        elif qualityresult == 'QualityResult.medium':
-            self._qualityresult = QualityResult.medium
-        elif qualityresult == 'QualityResult.high':
-            self._qualityresult = QualityResult.high
+        elif qualityresult == 'SettingTwo.low':
+            self._qualityresult = SettingTwo.low
+        elif qualityresult == 'SettingTwo.medium':
+            self._qualityresult = SettingTwo.medium
+        elif qualityresult == 'SettingTwo.high':
+            self._qualityresult = SettingTwo.high
         else:
-            self._qualityresult = QualityResult.medium
+            self._qualityresult = SettingTwo.medium
+
+        # END Здесь проверка на коорректность настроек пользователя SettingOne и SettingTwo
 
     @property
     def id(self):
@@ -125,41 +132,42 @@ class User:
             elif new_role == 'Role.user':
                 self._role = Role.user
 
+    # TODO: это нужно переделать в более унивесальное
     @property
     def typeresult(self):
         return self._typeresult
 
     @typeresult.setter
     def typeresult(self, new_type):
-        # проверить соответствует ли new_type классу TypeResult
-        if type(new_type) is TypeResult:
+        # проверить соответствует ли new_type классу SettingOne
+        if type(new_type) is SettingOne:
             self._typeresult = new_type
         if type(new_type) is str:
-            if new_type == 'TypeResult.video':
-                self._typeresult = TypeResult.video
-            elif new_type == 'TypeResult.sound':
-                self.new_type = TypeResult.sound
+            if new_type == 'SettingOne.video':
+                self._typeresult = SettingOne.video
+            elif new_type == 'SettingOne.sound':
+                self.new_type = SettingOne.sound
             else:
-                self.new_type = TypeResult.sound
+                self.new_type = SettingOne.sound
 
     @property
     def qualityresult(self):
-        # проверить соответствует ли new_type классу QualityResult
+        # проверить соответствует ли new_type классу SettingTwo
         return self._qualityresult
 
     @qualityresult.setter
     def qualityresult(self, quality):
-        # проверить соответствует ли new_type классу QualityResult
+        # проверить соответствует ли new_type классу SettingTwo
 
-        if type(quality) is QualityResult:
+        if type(quality) is SettingTwo:
             self._qualityresult = quality
         elif type(quality) is str:
-            if quality == 'QualityResult.low':
-                self._qualityresult = QualityResult.low
-            elif quality == 'QualityResult.medium':
-                self._qualityresult = QualityResult.medium
-            elif quality == 'QualityResult.high':
-                self._qualityresult = QualityResult.high
+            if quality == 'SettingTwo.low':
+                self._qualityresult = SettingTwo.low
+            elif quality == 'SettingTwo.medium':
+                self._qualityresult = SettingTwo.medium
+            elif quality == 'SettingTwo.high':
+                self._qualityresult = SettingTwo.high
 
     def __str__(self):
         return f"User -> id: {self.id}\t{type(self.id)}\n\tname: {self.name}\t{type(self.name)}\n\t" \
@@ -180,7 +188,7 @@ class SettingUser:
 
     def __init__(self, namedb='settings.db', force=False):
         """
-            нициализация БД настроек бота
+            инициализация БД настроек бота
                 namedb - название БД
                 force  - если True, то даже если БД существует, оно перезапишет его
         """
@@ -201,7 +209,7 @@ class SettingUser:
 
     def close(self):
         """
-            закрытие коннекта к БД
+            закрытие подключения к БД
         """
         if not (self.connect is None):
             self.connect.close()
@@ -319,8 +327,6 @@ class SettingUser:
 
         cursor = self.connect.cursor()
 
-
-
         sqlite_update_user = f"""UPDATE user SET name ='{new_user.name}',  
                                 active = {new_user.active}
                                 WHERE id={new_user.id}"""
@@ -436,21 +442,21 @@ if __name__ == '__main__':
     # user1.id = 123456
     # user1.active = True
     # user1.role = Role.admin
-    # user1.typeresult = TypeResult.sound
-    # user1.qualityresult = QualityResult.medium
+    # user1.typeresult = SettingOne.sound
+    # user1.qualityresult = SettingTwo.medium
     #
     # user2 = User()
     # user2.name = 'User1'
     # user2.id = 123456
     # user2.active = True
     # user2.role = Role.admin
-    # user2.typeresult = TypeResult.sound
-    # user2.qualityresult = QualityResult.medium
+    # user2.typeresult = SettingOne.sound
+    # user2.qualityresult = SettingTwo.medium
     # print(user1 == user2)
     #
     # print(ord(user2.typeresult))
 
-    # for name, member in TypeResult.__members__.items():
+    # for name, member in SettingOne.__members__.items():
     #     print(name, member)
 
     pass

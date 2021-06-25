@@ -2,7 +2,7 @@ import unittest
 import os
 import shutil
 
-from sqlitelib.sqliteutils import User, SettingUser, Role, TypeResult, QualityResult
+from sqlitelib.sqliteutils import User, SettingUser, Role, SettingOne, SettingTwo
 
 
 class TestSettingUser(unittest.TestCase):
@@ -32,24 +32,24 @@ class TestSettingUser(unittest.TestCase):
         self.user1.id = 123456
         self.user1.active = True
         self.user1.role = Role.admin
-        self.user1.typeresult = TypeResult.sound
-        self.user1.qualityresult = QualityResult.medium
+        self.user1.typeresult = SettingOne.sound
+        self.user1.qualityresult = SettingTwo.medium
 
         self.user2 = User()
         self.user2.name = 'User2'
         self.user2.id = 654321
         self.user2.active = True
         self.user2.role = Role.user
-        self.user2.typeresult = TypeResult.video
-        self.user2.qualityresult = QualityResult.low
+        self.user2.typeresult = SettingOne.video
+        self.user2.qualityresult = SettingTwo.low
 
         self.user3 = User()
         self.user3.name = 'User3'
         self.user3.id = 7854125
         self.user3.active = True
         self.user3.role = Role.user
-        self.user3.typeresult = TypeResult.sound
-        self.user3.qualityresult = QualityResult.high
+        self.user3.typeresult = SettingOne.sound
+        self.user3.qualityresult = SettingTwo.high
 
     def tearDown(self) -> None:
         self.usr.close()
@@ -166,7 +166,7 @@ class TestSettingUser(unittest.TestCase):
         self.usr.add_user(self.user2)
 
         user4 = User(id=self.user2.id, name='User4', active=False, role=Role.admin,
-                     typeresult=TypeResult.sound, qualityresult=QualityResult.low)
+                     typeresult=SettingOne.sound, qualityresult=SettingTwo.low)
 
         self.usr.update_user(user4)
 
@@ -185,7 +185,7 @@ class TestSettingUser(unittest.TestCase):
         self.usr.add_user(self.user2)
 
         user4 = User(id=555555, name='User4', active=False, role=Role.admin,
-                     typeresult=TypeResult.sound, qualityresult=QualityResult.low)
+                     typeresult=SettingOne.sound, qualityresult=SettingTwo.low)
 
         self.usr.update_user(user4)
 

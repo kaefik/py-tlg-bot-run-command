@@ -1,6 +1,6 @@
 import unittest
 
-from sqlitelib.sqliteutils import User, Role, TypeResult, QualityResult
+from sqlitelib.sqliteutils import User, Role, SettingOne, SettingTwo
 
 
 class TestUser(unittest.TestCase):
@@ -14,24 +14,24 @@ class TestUser(unittest.TestCase):
         self.user1.id = 123456
         self.user1.active = True
         self.user1.role = Role.admin
-        self.user1.typeresult = TypeResult.sound
-        self.user1.qualityresult = QualityResult.medium
+        self.user1.typeresult = SettingOne.sound
+        self.user1.qualityresult = SettingTwo.medium
 
         self.user1_copy = User()
         self.user1_copy.name = 'User1'
         self.user1_copy.id = 123456
         self.user1_copy.active = True
         self.user1_copy.role = Role.admin
-        self.user1_copy.typeresult = TypeResult.sound
-        self.user1_copy.qualityresult = QualityResult.medium
+        self.user1_copy.typeresult = SettingOne.sound
+        self.user1_copy.qualityresult = SettingTwo.medium
 
         self.user2 = User()
         self.user2.name = 'User2'
         self.user2.id = 654321
         self.user2.active = True
         self.user2.role = Role.user
-        self.user2.typeresult = TypeResult.video
-        self.user2.qualityresult = QualityResult.low
+        self.user2.typeresult = SettingOne.video
+        self.user2.qualityresult = SettingTwo.low
 
     def tearDown(self) -> None:
         pass
@@ -50,7 +50,7 @@ class TestUser(unittest.TestCase):
 
     def test_create_new(self):
         new_user = User(name='User1', id=123456, active=True, role=Role.admin,
-                        typeresult=TypeResult.sound, qualityresult=QualityResult.medium)
+                        typeresult=SettingOne.sound, qualityresult=SettingTwo.medium)
         self.assertEqual(self.user1, new_user)
 
     def test_create_new_string_param_typeresult(self):
@@ -58,7 +58,7 @@ class TestUser(unittest.TestCase):
             создание объекта User в котором typeresult передаются строками
         """
         new_user = User(name='User2', id=654321, active=True, role=Role.user,
-                        typeresult='TypeResult.video', qualityresult=QualityResult.low)
+                        typeresult='SettingOne.video', qualityresult=SettingTwo.low)
         self.assertEqual(self.user2, new_user)
 
     def test_create_new_string_param_typeresult2(self):
@@ -70,8 +70,8 @@ class TestUser(unittest.TestCase):
         new_user.id = 654321
         new_user.active = True
         new_user.role = Role.user
-        new_user.typeresult = 'TypeResult.video'
-        new_user.qualityresult = QualityResult.low
+        new_user.typeresult = 'SettingOne.video'
+        new_user.qualityresult = SettingTwo.low
         self.assertEqual(self.user2, new_user)
 
     def test_create_new_string_param_qualityresult(self):
@@ -79,7 +79,7 @@ class TestUser(unittest.TestCase):
             создание объекта User в котором qualityresult передаются строками
         """
         new_user = User(name='User2', id=654321, active=True, role=Role.user,
-                        typeresult=TypeResult.video, qualityresult='QualityResult.low')
+                        typeresult=SettingOne.video, qualityresult='SettingTwo.low')
         self.assertEqual(self.user2, new_user)
 
     def test_create_new_string_param_qualityresult2(self):
@@ -91,8 +91,8 @@ class TestUser(unittest.TestCase):
         new_user.id = 654321
         new_user.active = True
         new_user.role = Role.user
-        new_user.typeresult = TypeResult.video
-        new_user.qualityresult = 'QualityResult.low'
+        new_user.typeresult = SettingOne.video
+        new_user.qualityresult = 'SettingTwo.low'
         self.assertEqual(self.user2, new_user)
 
     def test_create_new_string_param_role(self):
@@ -100,7 +100,7 @@ class TestUser(unittest.TestCase):
             создание объекта User в котором role передаются строками
         """
         new_user = User(name='User2', id=654321, active=True, role='Role.user',
-                        typeresult=TypeResult.video, qualityresult=QualityResult.low)
+                        typeresult=SettingOne.video, qualityresult=SettingTwo.low)
         self.assertEqual(self.user2, new_user)
 
     def test_create_new_string_param_role2(self):
@@ -112,8 +112,8 @@ class TestUser(unittest.TestCase):
         new_user.id = 654321
         new_user.active = True
         new_user.role = 'Role.user'
-        new_user.typeresult = TypeResult.video
-        new_user.qualityresult = QualityResult.low
+        new_user.typeresult = SettingOne.video
+        new_user.qualityresult = SettingTwo.low
         self.assertEqual(self.user2, new_user)
         pass
 
