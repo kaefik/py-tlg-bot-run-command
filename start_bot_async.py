@@ -171,6 +171,13 @@ async def check_name_user_empty(client, sender_id, db):
     return user_name
 
 
+def allow_user_id(users):
+    result = []
+    for user in users:
+        result.append(user.id)
+    return set(result)
+
+
 # ----- END Вспомогательные функции
 
 
@@ -206,59 +213,31 @@ async def start_cmd(event):
 
 
 # выполнение команды /about
-@bot.on(events.NewMessage(pattern='/about'))
+@bot.on(events.NewMessage(chats=allow_user_id(settings.get_all_user()), pattern='/about'))
+# параметр chats - множество id пользователей которые имеют доступ к методу
 async def about_cmd(event):
-    sender = await event.get_sender()
-    # проверка на право доступа к боту
-    sender_id = sender.id
-    if not is_allow_user(sender_id, settings.get_all_user()):
-        await event.respond(f"Доступ запрещен. Обратитесь к администратору"
-                            f" чтобы добавил ваш ID в белый список. Ваш ID {sender_id}")
-        return
-    # END проверка на право доступа к боту
-
+    print(allow_user_id(settings.get_all_user()))
     await event.respond("Я выполняю ваши команды.")
 
 
 # выполнение команды /help
-@bot.on(events.NewMessage(pattern='/help'))
+@bot.on(events.NewMessage(chats=allow_user_id(settings.get_all_user()), pattern='/help'))
 async def help_cmd(event):
     sender = await event.get_sender()
-    # проверка на право доступа к боту
-    sender_id = sender.id
-    if not is_allow_user(sender_id, settings.get_all_user()):
-        await event.respond(f"Доступ запрещен. Обратитесь к администратору" \
-                            f" чтобы добавил ваш ID в белый список. Ваш ID {sender_id}")
-        return
-    # END проверка на право доступа к боту
     await event.respond(get_help('help.txt'))
 
 
 # -------------------- команды администрирования пользователей телеграмм бота ----------------------------------
-@bot.on(events.NewMessage(pattern='/admin'))
+@bot.on(events.NewMessage(chats=allow_user_id(settings.get_all_user()), pattern='/admin'))
 async def admin_cmd(event):
     sender = await event.get_sender()
-    # проверка на право доступа к боту
-    sender_id = sender.id
-    if not is_allow_user(sender_id, admin_client):
-        await event.respond(f"Доступ запрещен. Обратитесь к администратору"
-                            f" чтобы добавил ваш ID в белый список. Ваш ID {sender_id}")
-        return
-    # END проверка на право доступа к боту
     await event.respond("Вы вошли в режим администратора",
                         buttons=button_admin)
 
 
-@bot.on(events.NewMessage(pattern='/AddUser'))
+@bot.on(events.NewMessage(chats=allow_user_id(settings.get_all_user()), pattern='/AddUser'))
 async def add_user_admin(event):
-    sender = await event.get_sender()
-    # проверка на право доступа к боту
-    sender_id = sender.id
-    if not is_allow_user(sender_id, admin_client):
-        await event.respond(f"Доступ запрещен. Обратитесь к администратору"
-                            f" чтобы добавил ваш ID в белый список. Ваш ID {sender_id}")
-        return
-    # END проверка на право доступа к боту
+    # sender = await event.get_sender()
     await event.respond("Выполняется команда /AddUSer")
     # диалог с запросом информации нужной для работы команды /AddUser
     chat_id = event.chat_id
@@ -282,16 +261,9 @@ async def add_user_admin(event):
         await conv.send_message(f"Добавили нового пользователя с ID: {id_new_user} с именем {new_name_user}")
 
 
-@bot.on(events.NewMessage(pattern='/DelUser'))
+@bot.on(events.NewMessage(chats=allow_user_id(settings.get_all_user()), pattern='/DelUser'))
 async def del_user_admin(event):
-    sender = await event.get_sender()
-    # проверка на право доступа к боту
-    sender_id = sender.id
-    if not is_allow_user(sender_id, admin_client):
-        await event.respond(f"Доступ запрещен. Обратитесь к администратору"
-                            f" чтобы добавил ваш ID в белый список. Ваш ID {sender_id}")
-        return
-    # END проверка на право доступа к боту
+    # sender = await event.get_sender()
     await event.respond("Выполняется команда /DelUSer")
     # диалог с запросом информации нужной для работы команды /DelUser
     chat_id = event.chat_id
@@ -315,7 +287,7 @@ async def del_user_admin(event):
             await conv.send_message("Удаление пользователя с правами администратора запрещено.")
 
 
-@bot.on(events.NewMessage(pattern='/InfoUser'))
+@bot.on(events.NewMessage(chats=allow_user_id(settings.get_all_user()), pattern='/InfoUser'))
 async def info_user_admin(event):
     ids = read_user_db(settings)
     ids = [str(x) for x in ids]
@@ -323,16 +295,9 @@ async def info_user_admin(event):
     await event.respond(f"Пользователи которые имеют доступ:\n{strs}")
 
 
-@bot.on(events.NewMessage(pattern='/ExitAdmin'))
+@bot.on(events.NewMessage(chats=allow_user_id(settings.get_all_user()), pattern='/ExitAdmin'))
 async def exit_admin_admin(event):
     sender = await event.get_sender()
-    # проверка на право доступа к боту
-    sender_id = sender.id
-    if not is_allow_user(sender_id, admin_client):
-        await event.respond(f"Доступ запрещен. Обратитесь к администратору"
-                            f" чтобы добавил ваш ID в белый список. Ваш ID {sender_id}")
-        return
-    # END проверка на право доступа к боту
     await event.respond(f"Вы вышли из режима администратора.",
                         buttons=button_main_admin)
 
@@ -342,30 +307,16 @@ async def exit_admin_admin(event):
 
 # ---------------------- Команды settings
 
-@bot.on(events.NewMessage(pattern='/settings'))
+@bot.on(events.NewMessage(chats=allow_user_id(settings.get_all_user()), pattern='/settings'))
 async def settings_cmd(event):
-    sender = await event.get_sender()
-    # проверка на право доступа к боту
-    sender_id = sender.id
-    if not is_allow_user(sender_id, admin_client):
-        await event.respond(f"Доступ запрещен. Обратитесь к администратору"
-                            f" чтобы добавил ваш ID в белый список. Ваш ID {sender_id}")
-        return
-    # END проверка на право доступа к боту
     await event.respond("Вы вошли в режим настроек пользователя",
                         buttons=button_settings)
 
 
-@bot.on(events.NewMessage(pattern='/ExitSettings'))
+@bot.on(events.NewMessage(chats=allow_user_id(settings.get_all_user()), pattern='/ExitSettings'))
 async def exit_settings_cmd(event):
     sender = await event.get_sender()
-    # # проверка на право доступа к боту
     sender_id = sender.id
-    if not is_allow_user(sender_id, admin_client):
-        await event.respond(f"Доступ запрещен. Обратитесь к администратору"
-                            f" чтобы добавил ваш ID в белый список. Ваш ID {sender_id}")
-        return
-    # END проверка на право доступа к боту
     user_name = await check_name_user_empty(event.client, sender_id, settings)
 
     if user_name.role == Role.admin:
@@ -380,22 +331,11 @@ async def exit_settings_cmd(event):
 
 
 # ---------------------- Команды для телеграмм бота которые образуют его основные функции
-@bot.on(events.NewMessage(pattern='ls|dir'))
+@bot.on(events.NewMessage(chats=allow_user_id(settings.get_all_user()), pattern='ls|dir'))
 async def run_cmd_one(event):
     """
     пример реализации команды ls Linux
     """
-
-    sender = await event.get_sender()
-    # # проверка на право доступа к боту
-    sender_id = sender.id
-    if not is_allow_user(sender_id, admin_client):
-        await event.respond(f"Доступ запрещен. Обратитесь к администратору"
-                            f" чтобы добавил ваш ID в белый список. Ваш ID {sender_id}")
-        return
-    # END проверка на право доступа к боту
-    # user_name = await check_name_user_empty(event.client, sender_id, settings)
-
     # выделение параметра команды
     message_text = event.raw_text.split()
     # print(message_text)
