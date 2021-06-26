@@ -2,13 +2,12 @@
  Версия телеграмм бота с использованием библиотеки Telethon
 
 """
-
 import os
 # pip3 install python-dotenv
 from dotenv import load_dotenv
 # pip3 install Telethon
 from telethon import TelegramClient, events, connection, Button
-# import asyncio
+import asyncio
 import logging
 # import re
 
@@ -378,6 +377,63 @@ async def exit_settings_cmd(event):
 
 
 # ---------------------- END Команды settings
+
+
+# ---------------------- Команды для телеграмм бота которые образуют его основные функции
+@bot.on(events.NewMessage(pattern='ls|dir'))
+async def run_cmd_one(event):
+    """
+    пример реализации команды ls Linux
+    """
+
+    sender = await event.get_sender()
+    # # проверка на право доступа к боту
+    sender_id = sender.id
+    if not is_allow_user(sender_id, admin_client):
+        await event.respond(f"Доступ запрещен. Обратитесь к администратору"
+                            f" чтобы добавил ваш ID в белый список. Ваш ID {sender_id}")
+        return
+    # END проверка на право доступа к боту
+    # user_name = await check_name_user_empty(event.client, sender_id, settings)
+
+    # выделение параметра команды
+    message_text = event.raw_text.split()
+    # print(message_text)
+
+    param_cmds = ''
+    if len(message_text) > 1:
+        param_cmds = message_text[1]
+
+    print(param_cmds)
+    # проверка существования папки
+    if not os.path.exists(param_cmds):
+        await event.respond(f"Папки {param_cmds} не существует.")
+        return
+
+    # команда которая будет выполняться на сервере
+    cmds = f"ls {param_cmds}"
+
+    await event.respond(f"Выполняем команду {cmds}")
+
+    done, _ = await asyncio.wait([run_cmd(cmds)])
+
+    # result - результат выполнения команды cmds
+    # error - ошибка, если команда cmds завершилась с ошибкой
+    # code - код работы команды, если 0 , то команда прошла без ошибок
+    result, error, code = done.pop().result()
+
+    if code != 0:
+        await event.respond(f"!!!! код: {code} \n" f"Внутренняя ошибка: {error}")
+        return
+
+    result = result.decode("utf-8")
+    str_result = result  # result.split("\n")
+
+    await event.respond(f"Результат: \n {str_result}")
+
+
+# ---------------------- END Команды для телеграмм бота которые образуют его основные функции
+
 
 def main():
     bot.run_until_disconnected()
