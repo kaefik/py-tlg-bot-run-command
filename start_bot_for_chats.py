@@ -2,6 +2,8 @@
  Версия телеграмм бота с использованием библиотеки Telethon
 
  которая прослушивает указанный чат/чаты и по стоп-словам делает пользователю замечание на его сообщения
+
+ В @BotFather нужно установить значение /setprivacy на disabled для выбранного бота.
 """
 import os
 # pip3 install python-dotenv
@@ -16,6 +18,8 @@ from i_utils import run_cmd
 from sqlitelib.sqliteutils import User, SettingUser, Role, SettingOne, SettingTwo
 
 # ---- Начальные данные ----
+
+dict_very_bad_words = ('попа', 'жопа')
 
 # подготовка для логирования работы программы
 logging.basicConfig(format='[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s',
@@ -68,6 +72,8 @@ else:
     bot = TelegramClient(app_name, app_api_id, app_api_hash,
                          connection=connection.ConnectionTcpMTProxyRandomizedIntermediate,
                          proxy=proxy).start(bot_token=bot_token)
+
+# bot.get_entity()
 
 # кнопки главного режима для администратора
 button_main_admin = [
@@ -194,11 +200,11 @@ async def start_cmd(event):
     # проверка на право доступа к боту
     sender_id = sender.id
 
-    if not is_allow_user(sender_id, settings.get_all_user()):
-        await event.respond(f"Доступ запрещен. Обратитесь к администратору" \
-                            f" чтобы добавил ваш ID в белый список. Ваш ID {sender_id}")
-        return
-    # END проверка на право доступа к боту
+    # if not is_allow_user(sender_id, settings.get_all_user()):
+    #     await event.respond(f"Доступ запрещен. Обратитесь к администратору" \
+    #                         f" чтобы добавил ваш ID в белый список. Ваш ID {sender_id}")
+    #     return
+    # # END проверка на право доступа к боту
 
     user_name = await check_name_user_empty(event.client, sender_id, settings)
 
@@ -332,45 +338,60 @@ async def exit_settings_cmd(event):
 
 
 # ---------------------- Команды для телеграмм бота которые образуют его основные функции
-@bot.on(events.NewMessage(chats=allow_user_id(settings.get_all_user()), pattern='ls|dir'))
+@bot.on(events.NewMessage)
 async def run_cmd_one(event):
     """
-    пример реализации команды ls Linux
+    пример реализации отслеживания плохих слов
     """
     # выделение параметра команды
-    message_text = event.raw_text.split()
+    message_text = event.raw_text
     # print(message_text)
 
-    param_cmds = ''
-    if len(message_text) > 1:
-        param_cmds = message_text[1]
+    # удаление всех знаков препинания
+    prep = (",", "-", ".")  # добавить сюда остальные знаки препинания
 
-    print(param_cmds)
-    # проверка существования папки
-    if not os.path.exists(param_cmds):
-        await event.respond(f"Папки {param_cmds} не существует.")
-        return
+    for el in prep:
+        message_text = message_text.replace(el, " ")
 
-    # команда которая будет выполняться на сервере
-    cmds = f"ls {param_cmds}"
+    words = message_text.split()
 
-    await event.respond(f"Выполняем команду {cmds}")
+    for el in words:
+        if el.strip() in dict_very_bad_words:
+            await event.respond("Использовать плохие слова нельзя!")
 
-    done, _ = await asyncio.wait([run_cmd(cmds)])
+    chat = await event.get_input_chat()
+    print(chat)
 
-    # result - результат выполнения команды cmds
-    # error - ошибка, если команда cmds завершилась с ошибкой
-    # code - код работы команды, если 0 , то команда прошла без ошибок
-    result, error, code = done.pop().result()
-
-    if code != 0:
-        await event.respond(f"!!!! код: {code} \n" f"Внутренняя ошибка: {error}")
-        return
-
-    result = result.decode("utf-8")
-    str_result = result  # result.split("\n")
-
-    await event.respond(f"Результат: \n {str_result}")
+    # param_cmds = ''
+    # if len(message_text) > 1:
+    #     param_cmds = message_text[1]
+    #
+    # print(param_cmds)
+    # # проверка существования папки
+    # if not os.path.exists(param_cmds):
+    #     await event.respond(f"Папки {param_cmds} не существует.")
+    #     return
+    #
+    # # команда которая будет выполняться на сервере
+    # cmds = f"ls {param_cmds}"
+    #
+    # await event.respond(f"Выполняем команду {cmds}")
+    #
+    # done, _ = await asyncio.wait([run_cmd(cmds)])
+    #
+    # # result - результат выполнения команды cmds
+    # # error - ошибка, если команда cmds завершилась с ошибкой
+    # # code - код работы команды, если 0 , то команда прошла без ошибок
+    # result, error, code = done.pop().result()
+    #
+    # if code != 0:
+    #     await event.respond(f"!!!! код: {code} \n" f"Внутренняя ошибка: {error}")
+    #     return
+    #
+    # result = result.decode("utf-8")
+    # str_result = result  # result.split("\n")
+    #
+    # await event.respond(f"Результат: \n {str_result}")
 
 
 # ---------------------- END Команды для телеграмм бота которые образуют его основные функции
